@@ -6,13 +6,21 @@ os:
 node_js:
   - '8'
   - '10'
+
+before_script:
+  - node --version
+  - npm --version
+
 script:
+  - if [[ "$TRAVIS_OS_NAME" != 'windows' ]]; then npm run test-ci; fi
+  - if [[ "$TRAVIS_OS_NAME" = 'windows' ]]; then npm run test-coverage-once; fi
   - npm run test-ci
   - node bin/build-locales
   - npm run build
   - npm run lint
   # run integration tests using an addons-linter binary in a production-like environment
   - npm run test-integration:production
+
 notifications:
   irc:
     channels:
