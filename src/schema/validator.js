@@ -82,7 +82,13 @@ validator.addKeyword('deprecated', {
 });
 
 validator.addKeyword('max_manifest_version', {
-  validate: function validateMaxMV(maxMV, propValue, schema, dataPath, rootData) {
+  validate: function validateMaxMV(
+    maxMV,
+    propValue,
+    schema,
+    dataPath,
+    rootData
+  ) {
     const res = maxMV >= rootData.manifest_version;
     if (!res) {
       validateMaxMV.errors = [
@@ -93,13 +99,19 @@ validator.addKeyword('max_manifest_version', {
       ];
     }
     return res;
-  }, 
+  },
   errors: true,
 });
 
 validator.addKeyword('min_manifest_version', {
-  validate: function validateMinMV(minMV, propValue, schema, dataPath, rootData) {
-    const res = minMV <= rootData.manifest_version
+  validate: function validateMinMV(
+    minMV,
+    propValue,
+    schema,
+    dataPath,
+    rootData
+  ) {
+    const res = minMV <= rootData.manifest_version;
     if (!res) {
       validateMinMV.errors = [
         {
@@ -109,7 +121,7 @@ validator.addKeyword('min_manifest_version', {
       ];
     }
     return res;
-  }, 
+  },
   errors: true,
 });
 
@@ -132,7 +144,7 @@ const _validateAddonMV3 = validator.compile({
   ...schemaObject,
   id: 'manifest-v3',
   $merge: {
-    source: {$ref: '#/types/ManifestBase'},
+    source: { $ref: '#/types/ManifestBase' },
     with: {
       properties: {
         manifest_version: { maximum: 3 },
@@ -141,10 +153,11 @@ const _validateAddonMV3 = validator.compile({
   },
 });
 
-export const validateAddon = (manifestData, {enableManifestVersion3} = {}) => {
-  const _validate = enableManifestVersion3
-    ? _validateAddonMV3
-    : _validateAddon;
+export const validateAddon = (
+  manifestData,
+  { enableManifestVersion3 } = {}
+) => {
+  const _validate = enableManifestVersion3 ? _validateAddonMV3 : _validateAddon;
   const isValid = _validate(manifestData);
   validateAddon.errors = filterErrors(_validate.errors);
   return isValid;

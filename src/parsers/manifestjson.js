@@ -85,7 +85,9 @@ export default class ManifestJSONParser extends JSONParser {
       filename = MANIFEST_JSON,
       RelaxedJSON = RJSON,
       selfHosted = getDefaultConfigValue('self-hosted'),
-      enableManifestVersion3 = getDefaultConfigValue('enable-manifest-version3'),
+      enableManifestVersion3 = getDefaultConfigValue(
+        'enable-manifest-version3'
+      ),
       io = null,
     } = {}
   ) {

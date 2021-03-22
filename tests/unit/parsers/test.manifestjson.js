@@ -906,7 +906,7 @@ describe('ManifestJSONParser', () => {
 
         expect(manifestV3JSONParser.isValid).toEqual(true);
         const { warnings } = addonLinter.collector;
-        
+
         const keys = Object.keys(contentSecurityPolicy);
         for (let i = 0; i < keys.length; i++) {
           expect(warnings[i].code).toEqual(messages.MANIFEST_CSP);
@@ -1887,14 +1887,15 @@ describe('ManifestJSONParser', () => {
       const manifestJSONParser = new ManifestJSONParser(
         json,
         linter.collector,
-        { io: { files: { "background_worker.js": "" } } },
+        { io: { files: { 'background_worker.js': '' } } }
       );
 
       expect(manifestJSONParser.isValid).toBeFalsy();
       assertHasMatchingError(linter.collector.errors, {
         dataPath: '/background',
         code: 'JSON_INVALID',
-        message: '"/background" The format used is only supported in manifest versions >= 3',
+        message:
+          '"/background" The format used is only supported in manifest versions >= 3',
       });
     });
 
@@ -1907,8 +1908,8 @@ describe('ManifestJSONParser', () => {
       const manifestJSONParser = new ManifestJSONParser(
         json,
         linter.collector,
-        { 
-          io: { files: { "background_worker.js": "" } },
+        {
+          io: { files: { 'background_worker.js': '' } },
           enableManifestVersion3: true,
         }
       );
