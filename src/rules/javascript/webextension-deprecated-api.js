@@ -1,6 +1,10 @@
 import * as messages from 'messages';
 import { DEPRECATED_JAVASCRIPT_APIS } from 'const';
-import { isDeprecatedApi, hasBrowserApi } from 'schema/browser-apis';
+import {
+  isDeprecatedApi,
+  isMV2DeprecatedApi,
+  hasBrowserApi,
+} from 'schema/browser-apis';
 import { isBrowserNamespace } from 'utils';
 
 const rule = {
@@ -15,12 +19,15 @@ const rule = {
           const namespace = node.object.property.name;
           const property = node.property.name;
           const api = `${namespace}.${property}`;
+          const { addonMetadata } = context.settings;
 
           if (
-            hasBrowserApi(namespace, property) &&
-            isDeprecatedApi(namespace, property)
+            hasBrowserApi(namespace, property, addonMetadata) &&
+            isDeprecatedApi(namespace, property, addonMetadata)
           ) {
-            const msgId = DEPRECATED_JAVASCRIPT_APIS[api];
+            const msgId = isMV2DeprecatedApi(namespace, property, addonMetadata)
+              ? 'DEPRECATED_MV2_API'
+              : DEPRECATED_JAVASCRIPT_APIS[api];
 
             const messageObject =
               // eslint-disable-next-line import/namespace

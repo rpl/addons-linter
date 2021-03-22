@@ -1,4 +1,10 @@
-import { DEPRECATED_JAVASCRIPT_APIS, TEMPORARY_APIS } from 'const';
+import {
+  DEPRECATED_JAVASCRIPT_APIS,
+  TEMPORARY_APIS,
+  MANIFEST_VERSION_DEFAULT,
+  MANIFEST_VERSION_MIN,
+  MANIFEST_VERSION_MAX,
+} from 'const';
 import schemaList from 'schema/imported';
 
 const schemaArrayNames = ['functions', 'events'];
@@ -40,15 +46,102 @@ function getArrayProperty(schema, property) {
   return null;
 }
 
+export function getManifestVersion(addonMetadata) {
+  const { manifestVersion } = addonMetadata || {
+    manifestVersion: MANIFEST_VERSION_DEFAULT,
+  };
+  return manifestVersion;
+}
+
+export function getMaxManifestVersion(
+  namespace,
+  property,
+  addonMetadata,
+  apiSchemas = schemas
+) {
+  const schema = apiSchemas[namespace];
+  const schemaItem =
+    getObjectProperty(schema, property) || getArrayProperty(schema, property);
+  const manifestVersion = getManifestVersion(addonMetadata);
+
+  let ns_max_mv = schema && schema.max_manifest_version;
+  ns_max_mv = ns_max_mv == null ? MANIFEST_VERSION_MAX : ns_max_mv;
+
+  let prop_max_mv = schemaItem && schemaItem.max_manifest_version;
+  prop_max_mv = prop_max_mv == null ? MANIFEST_VERSION_MAX : prop_max_mv;
+
+  // Return the lower max_manifest_version value between the one set at
+  // API namespace level and the one set on the particular property.
+  return Math.min(ns_max_mv, prop_max_mv);
+}
+
+export function getMinManifestVersion(
+  namespace,
+  property,
+  addonMetadata,
+  apiSchemas = schemas
+) {
+  const schema = apiSchemas[namespace];
+  const schemaItem =
+    getObjectProperty(schema, property) || getArrayProperty(schema, property);
+  const manifestVersion = getManifestVersion(addonMetadata);
+
+  let ns_min_mv = schema && schema.min_manifest_version;
+  ns_min_mv = ns_min_mv == null ? MANIFEST_VERSION_MIN : ns_min_mv;
+
+  let prop_min_mv = schemaItem && schemaItem.min_manifest_version;
+  prop_min_mv = prop_min_mv == null ? MANIFEST_VERSION_MIN : prop_min_mv;
+
+  // Return the higher min_manifest_version value between the one set at
+  // API namespace level and the one set on the particular property.
+  return Math.max(ns_min_mv, prop_min_mv);
+}
+
 export function isTemporaryApi(namespace, property) {
   return TEMPORARY_APIS.includes(`${namespace}.${property}`);
 }
 
-export function isDeprecatedApi(namespace, property) {
-  const schema = schemas[namespace];
+export function isMV2DeprecatedApi(
+  namespace,
+  property,
+  addonMetadata,
+  apiSchemas = schemas
+) {
+  // The message for API deprecated in manifest_version 3 should not be
+  // used if the currently validated addon has manifest_version 2.
+  if (addonMetadata.manifestVersion === 2) {
+    return false;
+  }
+
+  const schema = apiSchemas[namespace];
+  const schemaItem =
+    getObjectProperty(schema, property) || getArrayProperty(schema, property);
+
+  return getMaxManifestVersion(namespace, property, addonMetadata) === 2;
+}
+
+export function isDeprecatedApi(
+  namespace,
+  property,
+  addonMetadata,
+  apiSchemas = schemas
+) {
+  const schema = apiSchemas[namespace];
 
   const schemaItem =
     getObjectProperty(schema, property) || getArrayProperty(schema, property);
+
+  const manifestVersion = getManifestVersion(addonMetadata);
+  const max_manifest_version = getMaxManifestVersion(
+    namespace,
+    property,
+    addonMetadata
+  );
+  if (manifestVersion > max_manifest_version) {
+    // Consider the API deprecated if its schema has a max_manifest_version
+    // greater then the extension manifest version.
+    return true;
+  }
 
   return (
     (schemaItem !== null && schemaItem.deprecated !== undefined) ||
@@ -59,18 +152,47 @@ export function isDeprecatedApi(namespace, property) {
   );
 }
 
-export function hasBrowserApi(namespace, property) {
-  const schema = schemas[namespace];
+export function hasBrowserApi(
+  namespace,
+  property,
+  addonMetadata,
+  apiSchemas = schemas
+) {
+  const schema = apiSchemas[namespace];
+
   // We "have" the API if it's deprecated or temporary so we don't double warn.
   if (
     isTemporaryApi(namespace, property) ||
-    isDeprecatedApi(namespace, property)
+    isDeprecatedApi(namespace, property, addonMetadata, apiSchemas)
   ) {
     return true;
   }
 
   const schemaItem =
     getObjectProperty(schema, property) || getArrayProperty(schema, property);
+
+  const manifestVersion = getManifestVersion(addonMetadata);
+  const min_manifest_version = getMinManifestVersion(
+    namespace,
+    property,
+    addonMetadata,
+    apiSchemas
+  );
+  const max_manifest_version = getMinManifestVersion(
+    namespace,
+    property,
+    addonMetadata,
+    apiSchemas
+  );
+  if (
+    manifestVersion < min_manifest_version ||
+    manifestVersion > max_manifest_version
+  ) {
+    // Consider the API unsupported if its schema has a min_manifest_version
+    // greater then the extension manifest version or a max_manifest_version
+    // lower than the extension manifest version.
+    return false;
+  }
 
   return schemaItem && !schemaItem.unsupported;
 }

@@ -73,7 +73,10 @@ export const LOCAL_PROTOCOLS = ['chrome:', 'resource:'];
 
 export const MANIFEST_JSON = 'manifest.json';
 
-export const VALID_MANIFEST_VERSION = 2;
+export const MANIFEST_VERSION_VALID = 2;
+export const MANIFEST_VERSION_DEFAULT = 2;
+export const MANIFEST_VERSION_MIN = 2;
+export const MANIFEST_VERSION_MAX = 3;
 
 // This is the limit in megabytes of a file we will parse (eg. CSS, JS, etc.)
 // A singular CSS/JS file over 4MB seems bad and may actually be full of data

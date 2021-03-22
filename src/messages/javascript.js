@@ -146,6 +146,13 @@ export const DEPRECATED_CHROME_API = {
   description: null,
 };
 
+export const DEPRECATED_MV2_API = {
+  code: 'DEPRECATED_API',
+  message: null,
+  messageFormat: i18n._('"{{api}}" is deprecated in manifest v3 extensions'),
+  description: null,
+};
+
 function temporaryAPI(api) {
   return {
     code: apiToMessage(api),

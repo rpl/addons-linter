@@ -14,8 +14,9 @@ const rule = {
           const namespace = node.object.property.name;
           const property = node.property.name;
           const api = `${namespace}.${property}`;
+          const { addonMetadata } = context.settings;
 
-          if (!hasBrowserApi(namespace, property)) {
+          if (!hasBrowserApi(namespace, property, addonMetadata)) {
             context.report(node, UNSUPPORTED_API.messageFormat, { api });
           }
         }

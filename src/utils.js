@@ -438,8 +438,9 @@ export function createCompatibilityRule(
   bcd,
   hasBrowserApi
 ) {
+  const { addonMetadata } = context.settings;
   const minVersion =
-    context.settings.addonMetadata &&
+    addonMetadata &&
     firefoxStrictMinVersion({
       applications: {
         gecko: {
@@ -459,12 +460,12 @@ export function createCompatibilityRule(
           const property = node.property.name;
           const api = `${namespace}.${property}`;
           if (
-            hasBrowserApi(namespace, property) &&
+            hasBrowserApi(namespace, property, addonMetadata) &&
             !isCompatible(bcd, api, minVersion, application)
           ) {
             context.report(node, message.messageFormat, {
               api,
-              minVersion: context.settings.addonMetadata.firefoxMinVersion,
+              minVersion: addonMetadata.firefoxMinVersion,
             });
           }
         }

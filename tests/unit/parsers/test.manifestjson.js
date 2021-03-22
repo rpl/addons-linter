@@ -5,7 +5,7 @@ import bcd from '@mdn/browser-compat-data';
 
 import Linter from 'linter';
 import ManifestJSONParser from 'parsers/manifestjson';
-import { PACKAGE_EXTENSION, VALID_MANIFEST_VERSION } from 'const';
+import { PACKAGE_EXTENSION, MANIFEST_VERSION_VALID } from 'const';
 import * as messages from 'messages';
 import { firstStableVersion } from 'utils';
 
@@ -213,7 +213,7 @@ describe('ManifestJSONParser', () => {
       );
       expect(manifestJSONParser.isValid).toEqual(true);
       const metadata = manifestJSONParser.getMetadata();
-      expect(metadata.manifestVersion).toEqual(VALID_MANIFEST_VERSION);
+      expect(metadata.manifestVersion).toEqual(MANIFEST_VERSION_VALID);
     });
   });
 
