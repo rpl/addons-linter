@@ -264,6 +264,8 @@ export default class ManifestJSONParser extends JSONParser {
       // properties are handled properly (e.g. we should also detect when the deprecated
       // keyword is actually used to warn the developer of additional properties not
       // explicitly defined in the schemas).
+    } else if (error.keyword === 'unsupported') {
+      baseObject = messages.manifestFieldUnsupported(error.dataPath);
     } else if (
       error.dataPath.startsWith('/permissions') &&
       typeof error.data !== 'undefined' &&

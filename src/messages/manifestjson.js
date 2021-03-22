@@ -26,9 +26,13 @@ export function manifestFieldUnsupported(fieldName) {
   return {
     code: 'MANIFEST_FIELD_UNSUPPORTED',
     message: i18n._('Manifest field not supported.'),
-    description: i18n.sprintf(i18n._('"%(fieldName)s" is not supported.'), {
-      fieldName,
-    }),
+    description: i18n.sprintf(
+      i18n._(oneLine`"%(fieldName)s" is not supported,
+      or not supported with the current manifest_version.`),
+      {
+        fieldName,
+      }
+    ),
     file: MANIFEST_JSON,
   };
 }

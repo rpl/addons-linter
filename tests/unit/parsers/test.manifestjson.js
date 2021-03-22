@@ -1893,9 +1893,9 @@ describe('ManifestJSONParser', () => {
       expect(manifestJSONParser.isValid).toBeFalsy();
       assertHasMatchingError(linter.collector.errors, {
         dataPath: '/background',
-        code: 'JSON_INVALID',
+        code: 'MANIFEST_FIELD_UNSUPPORTED',
         message:
-          '"/background" The format used is only supported in manifest versions >= 3',
+          '"/background" is in a format only supported with manifest versions >= 3',
       });
     });
 

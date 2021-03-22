@@ -93,8 +93,8 @@ validator.addKeyword('max_manifest_version', {
     if (!res) {
       validateMaxMV.errors = [
         {
-          keyword: 'max_manifest_version',
-          message: `The format used is only supported in manifest versions <= ${maxMV}`,
+          keyword: 'unsupported',
+          message: `is in a format only supported in manifest versions <= ${maxMV}`,
         },
       ];
     }
@@ -104,19 +104,24 @@ validator.addKeyword('max_manifest_version', {
 });
 
 validator.addKeyword('min_manifest_version', {
+  // function of type SchemaValidateFunction (see ajv typescript signatures).
   validate: function validateMinMV(
     minMV,
     propValue,
     schema,
     dataPath,
+    parentData,
+    parentDataProperty,
     rootData
   ) {
-    const res = minMV <= rootData.manifest_version;
+    const manifestVersion =
+      (rootData && rootData.manifest_version) || MANIFEST_VERSION_DEFAULT;
+    const res = minMV <= manifestVersion;
     if (!res) {
       validateMinMV.errors = [
         {
-          keyword: 'min_manifest_version',
-          message: `The format used is only supported in manifest versions >= ${minMV}`,
+          keyword: 'unsupported',
+          message: `is in a format only supported with manifest versions >= ${minMV}`,
         },
       ];
     }
