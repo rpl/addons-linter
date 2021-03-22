@@ -1887,15 +1887,33 @@ describe('ManifestJSONParser', () => {
       const manifestJSONParser = new ManifestJSONParser(
         json,
         linter.collector,
-        { io: { files: {} } }
+        { io: { files: { "background_worker.js": "" } } },
       );
 
       expect(manifestJSONParser.isValid).toBeFalsy();
       assertHasMatchingError(linter.collector.errors, {
-        code: messages.MANIFEST_FIELD_UNSUPPORTED,
-        message: 'Manifest field not supported.',
-        description: '"background.service_worker" is not supported.',
+        dataPath: '/background',
+        code: 'JSON_INVALID',
+        message: '"/background" The format used is only supported in manifest versions >= 3',
       });
+    });
+
+    it('does not error if background.service_worker is used with manifest_version: 3', () => {
+      const linter = new Linter({ _: ['bar'] });
+      const json = validManifestJSON({
+        manifest_version: 3,
+        background: { service_worker: 'background_worker.js' },
+      });
+      const manifestJSONParser = new ManifestJSONParser(
+        json,
+        linter.collector,
+        { 
+          io: { files: { "background_worker.js": "" } },
+          enableManifestVersion3: true,
+        }
+      );
+
+      expect(manifestJSONParser.isValid).toBeTruthy();
     });
   });
 
