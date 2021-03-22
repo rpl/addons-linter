@@ -191,13 +191,16 @@
                   }
                 },
                 "content_security_policy": {
-                  "onError": "warn",
                   "anyOf": [
                     {
+                      "max_manifest_version": 2,
+                      "onError": "warn",
                       "type": "string",
                       "format": "contentSecurityPolicy"
                     },
                     {
+                      "min_manifest_version": 3,
+                      "onError": "warn",
                       "type": "object",
                       "properties": {
                         "extension_pages": {
