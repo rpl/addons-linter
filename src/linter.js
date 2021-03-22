@@ -264,6 +264,7 @@ export default class Linter {
       const json = await this.io.getFileAsString(constants.MANIFEST_JSON);
       const manifestParser = new ManifestJSONParser(json, this.collector, {
         selfHosted: this.config.selfHosted,
+        enableManifestVersion3: this.config.enableManifestVersion3,
         io: this.io,
       });
       await manifestParser.validateIcons();

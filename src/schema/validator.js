@@ -81,9 +81,43 @@ validator.addKeyword('deprecated', {
   errors: true,
 });
 
+validator.addKeyword('max_manifest_version', {
+  validate: function validateMaxMV(maxMV, propValue, schema, dataPath, rootData) {
+    const res = maxMV >= rootData.manifest_version;
+    if (!res) {
+      validateMaxMV.errors = [
+        {
+          keyword: 'max_manifest_version',
+          message: `The format used is only supported in manifest versions <= ${maxMV}`,
+        },
+      ];
+    }
+    return res;
+  }, 
+  errors: true,
+});
+
+validator.addKeyword('min_manifest_version', {
+  validate: function validateMinMV(minMV, propValue, schema, dataPath, rootData) {
+    const res = minMV <= rootData.manifest_version
+    if (!res) {
+      validateMinMV.errors = [
+        {
+          keyword: 'min_manifest_version',
+          message: `The format used is only supported in manifest versions >= ${minMV}`,
+        },
+      ];
+    }
+    return res;
+  }, 
+  errors: true,
+});
+
 function filterErrors(errors) {
   if (errors) {
-    return errors.filter((error) => error.keyword !== '$merge');
+    return errors.filter((error) => {
+      return error.keyword !== '$merge';
+    });
   }
   return errors;
 }
@@ -94,9 +128,25 @@ const _validateAddon = validator.compile({
   $ref: '#/types/WebExtensionManifest',
 });
 
-export const validateAddon = (...args) => {
-  const isValid = _validateAddon(...args);
-  validateAddon.errors = filterErrors(_validateAddon.errors);
+const _validateAddonMV3 = validator.compile({
+  ...schemaObject,
+  id: 'manifest-v3',
+  $merge: {
+    source: {$ref: '#/types/ManifestBase'},
+    with: {
+      properties: {
+        manifest_version: { maximum: 3 },
+      },
+    },
+  },
+});
+
+export const validateAddon = (manifestData, {enableManifestVersion3} = {}) => {
+  const _validate = enableManifestVersion3
+    ? _validateAddonMV3
+    : _validateAddon;
+  const isValid = _validate(manifestData);
+  validateAddon.errors = filterErrors(_validate.errors);
   return isValid;
 };
 
@@ -128,8 +178,8 @@ const _validateStaticTheme = validator.compile({
   $ref: '#/types/ThemeManifest',
 });
 
-export const validateStaticTheme = (...args) => {
-  const isValid = _validateStaticTheme(...args);
+export const validateStaticTheme = (manifestData) => {
+  const isValid = _validateStaticTheme(manifestData);
   validateStaticTheme.errors = filterErrors(_validateStaticTheme.errors);
   return isValid;
 };
@@ -156,8 +206,8 @@ const _validateLangPack = validator.compile({
   $ref: '#/types/WebExtensionLangpackManifest',
 });
 
-export const validateLangPack = (...args) => {
-  const isValid = _validateLangPack(...args);
+export const validateLangPack = (manifestData) => {
+  const isValid = _validateLangPack(manifestData);
   validateLangPack.errors = filterErrors(_validateLangPack.errors);
   return isValid;
 };
@@ -182,8 +232,8 @@ const _validateDictionary = validator.compile({
   $ref: '#/types/WebExtensionDictionaryManifest',
 });
 
-export const validateDictionary = (...args) => {
-  const isValid = _validateDictionary(...args);
+export const validateDictionary = (manifestData) => {
+  const isValid = _validateDictionary(manifestData);
   validateDictionary.errors = filterErrors(_validateDictionary.errors);
   return isValid;
 };
@@ -194,8 +244,8 @@ const _validateLocaleMessages = validator.compile({
   $ref: '#/types/WebExtensionMessages',
 });
 
-export const validateLocaleMessages = (...args) => {
-  const isValid = _validateLocaleMessages(...args);
+export const validateLocaleMessages = (localeMessagesData) => {
+  const isValid = _validateLocaleMessages(localeMessagesData);
   validateLocaleMessages.errors = filterErrors(_validateLocaleMessages.errors);
   return isValid;
 };

@@ -889,6 +889,7 @@ describe('ManifestJSONParser', () => {
         };
 
         const jsonV3 = validManifestJSON({
+          manifest_version: 3,
           content_security_policy: contentSecurityPolicy,
           applications: {
             // The new content_security_policy syntax is only supported
@@ -899,12 +900,13 @@ describe('ManifestJSONParser', () => {
 
         const manifestV3JSONParser = new ManifestJSONParser(
           jsonV3,
-          addonLinter.collector
+          addonLinter.collector,
+          { enableManifestVersion3: true }
         );
 
         expect(manifestV3JSONParser.isValid).toEqual(true);
         const { warnings } = addonLinter.collector;
-
+        
         const keys = Object.keys(contentSecurityPolicy);
         for (let i = 0; i < keys.length; i++) {
           expect(warnings[i].code).toEqual(messages.MANIFEST_CSP);
@@ -958,6 +960,7 @@ describe('ManifestJSONParser', () => {
 
         // Manifest v3 format.
         const jsonV3 = validManifestJSON({
+          manifest_version: 3,
           content_security_policy: {
             extension_pages: validValue,
             content_scripts: validValue,
@@ -972,7 +975,8 @@ describe('ManifestJSONParser', () => {
 
         const manifestV3JSONParser = new ManifestJSONParser(
           jsonV3,
-          addonLinter.collector
+          addonLinter.collector,
+          { enableManifestVersion3: true }
         );
 
         expect(manifestV3JSONParser.isValid).toEqual(true);
@@ -1014,6 +1018,7 @@ describe('ManifestJSONParser', () => {
       };
 
       const jsonV3 = validManifestJSON({
+        manifest_version: 3,
         content_security_policy: contentSecurityPolicy,
         applications: {
           // The new content_security_policy syntax is only supported
@@ -1024,7 +1029,8 @@ describe('ManifestJSONParser', () => {
 
       const manifestV3JSONParser = new ManifestJSONParser(
         jsonV3,
-        addonLinter.collector
+        addonLinter.collector,
+        { enableManifestVersion3: true }
       );
 
       expect(manifestV3JSONParser.isValid).toEqual(true);

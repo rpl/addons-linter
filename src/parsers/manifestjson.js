@@ -85,6 +85,7 @@ export default class ManifestJSONParser extends JSONParser {
       filename = MANIFEST_JSON,
       RelaxedJSON = RJSON,
       selfHosted = getDefaultConfigValue('self-hosted'),
+      enableManifestVersion3 = getDefaultConfigValue('enable-manifest-version3'),
       io = null,
     } = {}
   ) {
@@ -103,6 +104,7 @@ export default class ManifestJSONParser extends JSONParser {
     } else {
       // We've parsed the JSON; now we can validate the manifest.
       this.selfHosted = selfHosted;
+      this.enableManifestVersion3 = enableManifestVersion3;
       this.isLanguagePack = Object.prototype.hasOwnProperty.call(
         this.parsedJSON,
         'langpack_id'
@@ -314,7 +316,10 @@ export default class ManifestJSONParser extends JSONParser {
       validate = validateDictionary;
     }
 
-    this.isValid = validate(this.parsedJSON);
+    this.isValid = validate(this.parsedJSON, {
+      enableManifestVersion3: this.enableManifestVersion3,
+    });
+
     if (!this.isValid) {
       log.debug(
         'Schema Validation messages',

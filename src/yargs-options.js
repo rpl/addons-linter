@@ -42,6 +42,11 @@ const options = {
     type: 'boolean',
     default: false,
   },
+  'enable-manifest-version3': {
+    describe: 'Enables experimental manifest_version 3 support',
+    type: 'boolean',
+    default: false,
+  },
   'scan-file': {
     alias: ['f'],
     describe: 'Scan a selected file',

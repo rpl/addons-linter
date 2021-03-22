@@ -7,6 +7,12 @@ const VALIDNUMRX = /^[0-9]{1,5}$/;
 // https://developer.mozilla.org/en-US/Add-ons/AMO/Policy/Maintenance
 const TOOLKIT_VERSION_REGEX = /^(\d+\.?){1,3}\.(\d+([A-z]+(-?\d+)?))$/;
 
+let maxManifestVersionAllowed = 2;
+
+export function isManifestVersionAllowed(manifestVersion) {
+  return manifestVersion <= maxManifestVersionAllowed;
+}
+
 export function isValidVersionString(version) {
   // We should be starting with a string. Limit length, see bug 1393644
   if (typeof version !== 'string' || version.length > 100) {
