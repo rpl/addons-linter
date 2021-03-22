@@ -124,6 +124,7 @@
                           "$ref": "#/types/PersistentBackgroundProperty"
                         }
                       },
+                      "max_manifest_version": 2,
                       "required": [
                         "page"
                       ],
@@ -142,6 +143,7 @@
                           "$ref": "#/types/PersistentBackgroundProperty"
                         }
                       },
+                      "max_manifest_version": 2,
                       "required": [
                         "scripts"
                       ]
@@ -154,6 +156,7 @@
                         }
                       },
                       "postprocess": "requireBackgroundServiceWorkerEnabled",
+                      "min_manifest_version": 3,
                       "required": [
                         "service_worker"
                       ]
