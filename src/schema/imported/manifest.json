@@ -63,6 +63,14 @@
               "pattern": "^__MSG_.*?__$"
             }
           ]
+        },
+        "install_origins": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string",
+            "format": "origin"
+          }
         }
       },
       "required": [
