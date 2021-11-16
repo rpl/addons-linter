@@ -2,6 +2,7 @@ import {
   imageDataOrStrictRelativeUrl,
   isAbsoluteUrl,
   isAnyUrl,
+  isOrigin,
   isSecureUrl,
   isStrictRelativeUrl,
   isValidVersionString,
@@ -123,9 +124,22 @@ describe('formats', () => {
       expect(isAnyUrl(value)).toEqual(true);
       expect(isAbsoluteUrl(value)).toEqual(true);
       expect(isSecureUrl(value)).toEqual(true);
+      expect(isOrigin(value)).toEqual(true);
 
       expect(isStrictRelativeUrl(value)).toEqual(false);
       expect(imageDataOrStrictRelativeUrl(value)).toEqual(false);
+    });
+
+    it('trailing slash', () => {
+      const value = 'https://example.com/';
+
+      expect(isAnyUrl(value)).toEqual(true);
+      expect(isAbsoluteUrl(value)).toEqual(true);
+      expect(isSecureUrl(value)).toEqual(true);
+
+      expect(isStrictRelativeUrl(value)).toEqual(false);
+      expect(imageDataOrStrictRelativeUrl(value)).toEqual(false);
+      expect(isOrigin(value)).toEqual(false);
     });
 
     it('full URL', () => {
@@ -134,6 +148,43 @@ describe('formats', () => {
       expect(isAnyUrl(value)).toEqual(true);
       expect(isAbsoluteUrl(value)).toEqual(true);
       expect(isSecureUrl(value)).toEqual(true);
+
+      expect(isStrictRelativeUrl(value)).toEqual(false);
+      expect(imageDataOrStrictRelativeUrl(value)).toEqual(false);
+      expect(isOrigin(value)).toEqual(false);
+    });
+
+    it('domain with no path but with query string', () => {
+      const value = 'https://example.com?like=true&this=that';
+
+      expect(isAnyUrl(value)).toEqual(true);
+      expect(isAbsoluteUrl(value)).toEqual(true);
+      expect(isSecureUrl(value)).toEqual(true);
+
+      expect(isStrictRelativeUrl(value)).toEqual(false);
+      expect(imageDataOrStrictRelativeUrl(value)).toEqual(false);
+      expect(isOrigin(value)).toEqual(false);
+    });
+
+    it('domain with no path but with hash', () => {
+      const value = 'https://example.com#fool';
+
+      expect(isAnyUrl(value)).toEqual(true);
+      expect(isAbsoluteUrl(value)).toEqual(true);
+      expect(isSecureUrl(value)).toEqual(true);
+
+      expect(isStrictRelativeUrl(value)).toEqual(false);
+      expect(imageDataOrStrictRelativeUrl(value)).toEqual(false);
+      expect(isOrigin(value)).toEqual(false);
+    });
+
+    it('domain only but in mixed case', () => {
+      const value = 'https://ExAmPle.coM';
+
+      expect(isAnyUrl(value)).toEqual(true);
+      expect(isAbsoluteUrl(value)).toEqual(true);
+      expect(isSecureUrl(value)).toEqual(true);
+      expect(isOrigin(value)).toEqual(true);
 
       expect(isStrictRelativeUrl(value)).toEqual(false);
       expect(imageDataOrStrictRelativeUrl(value)).toEqual(false);
@@ -147,6 +198,44 @@ describe('formats', () => {
       expect(isSecureUrl(value)).toEqual(false);
       expect(isStrictRelativeUrl(value)).toEqual(false);
       expect(imageDataOrStrictRelativeUrl(value)).toEqual(false);
+      expect(isOrigin(value)).toEqual(false);
+    });
+
+    it('wildcard', () => {
+      const value = 'https://*.bar.com';
+
+      // FIXME: should these be true ?
+      expect(isAnyUrl(value)).toEqual(true);
+      expect(isAbsoluteUrl(value)).toEqual(true);
+      expect(isSecureUrl(value)).toEqual(true);
+
+      expect(isStrictRelativeUrl(value)).toEqual(false);
+      expect(imageDataOrStrictRelativeUrl(value)).toEqual(false);
+      expect(isOrigin(value)).toEqual(false);
+    });
+
+    it('punycode', () => {
+      const value = 'https://xn--fo-9ja.com';
+
+      expect(isAnyUrl(value)).toEqual(true);
+      expect(isAbsoluteUrl(value)).toEqual(true);
+      expect(isSecureUrl(value)).toEqual(true);
+      expect(isOrigin(value)).toEqual(true);
+
+      expect(isStrictRelativeUrl(value)).toEqual(false);
+      expect(imageDataOrStrictRelativeUrl(value)).toEqual(false);
+    });
+
+    it('IDN', () => {
+      const value = 'https://foo.bar.栃木.jp';
+
+      expect(isAnyUrl(value)).toEqual(true);
+      expect(isAbsoluteUrl(value)).toEqual(true);
+      expect(isSecureUrl(value)).toEqual(true);
+      expect(isOrigin(value)).toEqual(true);
+
+      expect(isStrictRelativeUrl(value)).toEqual(false);
+      expect(imageDataOrStrictRelativeUrl(value)).toEqual(false);
     });
 
     it('path only', () => {
@@ -158,6 +247,7 @@ describe('formats', () => {
 
       expect(isAbsoluteUrl(value)).toEqual(false);
       expect(isSecureUrl(value)).toEqual(false);
+      expect(isOrigin(value)).toEqual(false);
     });
 
     it('protocol relative', () => {
@@ -169,6 +259,7 @@ describe('formats', () => {
       expect(isStrictRelativeUrl(value)).toEqual(false);
       expect(isSecureUrl(value)).toEqual(false);
       expect(imageDataOrStrictRelativeUrl(value)).toEqual(false);
+      expect(isOrigin(value)).toEqual(false);
     });
 
     it('ftp: scheme', () => {
@@ -180,6 +271,7 @@ describe('formats', () => {
       expect(isStrictRelativeUrl(value)).toEqual(false);
       expect(isSecureUrl(value)).toEqual(false);
       expect(imageDataOrStrictRelativeUrl(value)).toEqual(false);
+      expect(isOrigin(value)).toEqual(false);
     });
 
     it('http: scheme', () => {
@@ -187,6 +279,19 @@ describe('formats', () => {
 
       expect(isAnyUrl(value)).toEqual(true);
       expect(isAbsoluteUrl(value)).toEqual(true);
+
+      expect(isStrictRelativeUrl(value)).toEqual(false);
+      expect(isSecureUrl(value)).toEqual(false);
+      expect(imageDataOrStrictRelativeUrl(value)).toEqual(false);
+      expect(isOrigin(value)).toEqual(false); // Because it contains path
+    });
+
+    it('http: scheme without path', () => {
+      const value = 'http://example.net';
+
+      expect(isAnyUrl(value)).toEqual(true);
+      expect(isAbsoluteUrl(value)).toEqual(true);
+      expect(isOrigin(value)).toEqual(true);
 
       expect(isStrictRelativeUrl(value)).toEqual(false);
       expect(isSecureUrl(value)).toEqual(false);
@@ -204,6 +309,7 @@ describe('formats', () => {
       expect(isStrictRelativeUrl(value)).toEqual(false);
       expect(isSecureUrl(value)).toEqual(false);
       expect(imageDataOrStrictRelativeUrl(value)).toEqual(false);
+      expect(isOrigin(value)).toEqual(false);
     });
 
     it('image data PNG', () => {
@@ -215,6 +321,7 @@ describe('formats', () => {
 
       expect(isStrictRelativeUrl(value)).toEqual(false);
       expect(isSecureUrl(value)).toEqual(false);
+      expect(isOrigin(value)).toEqual(false);
     });
 
     it('image data JPG', () => {
@@ -226,6 +333,7 @@ describe('formats', () => {
 
       expect(isStrictRelativeUrl(value)).toEqual(false);
       expect(isSecureUrl(value)).toEqual(false);
+      expect(isOrigin(value)).toEqual(false);
     });
 
     it('image data SVG', () => {
@@ -238,6 +346,7 @@ describe('formats', () => {
       expect(isStrictRelativeUrl(value)).toEqual(false);
       expect(isSecureUrl(value)).toEqual(false);
       expect(imageDataOrStrictRelativeUrl(value)).toEqual(false);
+      expect(isOrigin(value)).toEqual(false);
     });
   });
 });
